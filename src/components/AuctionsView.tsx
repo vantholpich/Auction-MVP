@@ -36,7 +36,7 @@ export function AuctionsView({ people, onPersonSelect }: AuctionsViewProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-100 to-orange-100">
       {/* Header */}
-      <div className="flex items-center justify-between p-6 pt-12">
+      <div className="flex items-center justify-between p-6 py-2">
         <button className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
           <Menu className="w-5 h-5 text-gray-700" />
         </button>
