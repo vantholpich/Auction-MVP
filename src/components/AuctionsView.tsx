@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Person } from '../types';
 import { AuctionCard } from './AuctionCard';
 import { SwipeButtons } from './SwipeButtons';
 import { Menu, Filter } from 'lucide-react';
+import { recordInteraction, getPassedProfiles, getLikedProfiles } from '../services/userInteractionService';
 
 interface AuctionsViewProps {
   people: Person[];
@@ -11,16 +12,47 @@ interface AuctionsViewProps {
 
 export function AuctionsView({ people, onPersonSelect }: AuctionsViewProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [filteredPeople, setFilteredPeople] = useState<Person[]>([]);
 
-  const handleSwipe = (direction: 'left' | 'right') => {
+  // Filter out people the user has already interacted with
+  useEffect(() => {
+    const filterPeople = async () => {
+      try {
+        const [passedIds, likedIds] = await Promise.all([
+          getPassedProfiles(),
+          getLikedProfiles()
+        ]);
+        
+        const interactedIds = new Set([...passedIds, ...likedIds]);
+        const filtered = people.filter(person => !interactedIds.has(person.id));
+        setFilteredPeople(filtered);
+      } catch (error) {
+        console.error('Error filtering people:', error);
+        setFilteredPeople(people);
+      }
+    };
+
+    if (people.length > 0) {
+      filterPeople();
+    }
+  }, [people]);
+
+  const handleSwipe = async (direction: 'left' | 'right') => {
+    const currentPerson = filteredPeople[currentIndex];
+    if (currentPerson) {
+      // Record the interaction
+      const action = direction === 'left' ? 'pass' : 'like';
+      await recordInteraction(currentPerson.id, action);
+    }
+    
     // Move to next person
-    setCurrentIndex((prev) => (prev + 1) % people.length);
+    setCurrentIndex((prev) => (prev + 1) % filteredPeople.length);
   };
 
   const handlePass = () => handleSwipe('left');
   const handleLike = () => handleSwipe('right');
 
-  const currentPerson = people[currentIndex];
+  const currentPerson = filteredPeople[currentIndex];
 
   if (!currentPerson) {
     return (
@@ -36,7 +68,7 @@ export function AuctionsView({ people, onPersonSelect }: AuctionsViewProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-100 to-orange-100">
       {/* Header */}
-      <div className="flex items-center justify-between p-6 py-2">
+      <div className="flex items-center justify-between p-6 pt-12">
         <button className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
           <Menu className="w-5 h-5 text-gray-700" />
         </button>
@@ -50,7 +82,7 @@ export function AuctionsView({ people, onPersonSelect }: AuctionsViewProps) {
 
       {/* Cards Stack */}
       <div className="relative h-[calc(100vh-200px)] mx-4">
-        {people.slice(currentIndex, currentIndex + 3).map((person, index) => (
+        {filteredPeople.slice(currentIndex, currentIndex + 3).map((person, index) => (
           <div
             key={person.id}
             className="absolute inset-0"

@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { toast } from 'sonner';
+import { createFriendProfile } from '../services/friendProfileService';
 
 interface CreateFriendProfileViewProps {
   onBack: () => void;
@@ -12,18 +13,46 @@ interface CreateFriendProfileViewProps {
 
 export function CreateFriendProfileView({ onBack, onCreateProfile }: CreateFriendProfileViewProps) {
   const [formData, setFormData] = useState({
-    name: 'Alex Doe',
-    age: '28',
-    bio: 'Tell us something interesting about them...',
-    interests: 'e.g., Hiking, Cooking, Video Games...',
-    pros: 'What are their best qualities?',
-    cons: 'Be honest, but kind!',
-    occupation: 'What do they do for work?',
+    name: '',
+    age: '',
+    bio: '',
+    interests: '',
+    pros: '',
+    cons: '',
+    occupation: '',
+    auctionedBy: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = () => {
-    toast.success('Friend profile created successfully!');
-    onCreateProfile();
+  const handleSubmit = async () => {
+    // Basic validation
+    if (!formData.name || !formData.age || !formData.bio || !formData.occupation || !formData.auctionedBy) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      
+      await createFriendProfile({
+        name: formData.name,
+        age: parseInt(formData.age),
+        bio: formData.bio,
+        occupation: formData.occupation,
+        interests: formData.interests,
+        pros: formData.pros,
+        cons: formData.cons,
+        auctionedBy: formData.auctionedBy
+      });
+
+      toast.success('Friend profile created successfully!');
+      onCreateProfile();
+    } catch (error) {
+      console.error('Error creating profile:', error);
+      toast.error('Failed to create profile. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -47,22 +76,26 @@ export function CreateFriendProfileView({ onBack, onCreateProfile }: CreateFrien
 
         {/* Friend's Name */}
         <div>
-          <label className="block mb-2">Friend's Name</label>
+          <label className="block mb-2">Friend's Name *</label>
           <Input
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             className="bg-pink-50 border-0 h-12 rounded-xl"
+            placeholder="Enter your friend's name"
           />
         </div>
 
         {/* Age */}
         <div>
-          <label className="block mb-2">Age</label>
+          <label className="block mb-2">Age *</label>
           <Input
             type="number"
             value={formData.age}
             onChange={(e) => setFormData({ ...formData, age: e.target.value })}
             className="bg-pink-50 border-0 h-12 rounded-xl"
+            placeholder="Enter age"
+            min="18"
+            max="100"
           />
         </div>
 
@@ -88,11 +121,12 @@ export function CreateFriendProfileView({ onBack, onCreateProfile }: CreateFrien
 
         {/* Bio */}
         <div>
-          <label className="block mb-2">Bio</label>
+          <label className="block mb-2">Bio *</label>
           <Textarea
             value={formData.bio}
             onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
             className="bg-pink-50 border-0 rounded-xl min-h-[100px] resize-none"
+            placeholder="Tell us something interesting about them..."
           />
         </div>
 
@@ -103,6 +137,7 @@ export function CreateFriendProfileView({ onBack, onCreateProfile }: CreateFrien
             value={formData.interests}
             onChange={(e) => setFormData({ ...formData, interests: e.target.value })}
             className="bg-pink-50 border-0 h-12 rounded-xl"
+            placeholder="e.g., Hiking, Cooking, Video Games..."
           />
         </div>
 
@@ -113,6 +148,7 @@ export function CreateFriendProfileView({ onBack, onCreateProfile }: CreateFrien
             value={formData.pros}
             onChange={(e) => setFormData({ ...formData, pros: e.target.value })}
             className="bg-pink-50 border-0 h-12 rounded-xl"
+            placeholder="What are their best qualities?"
           />
         </div>
 
@@ -123,25 +159,39 @@ export function CreateFriendProfileView({ onBack, onCreateProfile }: CreateFrien
             value={formData.cons}
             onChange={(e) => setFormData({ ...formData, cons: e.target.value })}
             className="bg-pink-50 border-0 h-12 rounded-xl"
+            placeholder="Be honest, but kind!"
           />
         </div>
 
         {/* Occupation */}
         <div>
-          <label className="block mb-2">Occupation</label>
+          <label className="block mb-2">Occupation *</label>
           <Input
             value={formData.occupation}
             onChange={(e) => setFormData({ ...formData, occupation: e.target.value })}
             className="bg-pink-50 border-0 h-12 rounded-xl"
+            placeholder="What do they do for work?"
+          />
+        </div>
+
+        {/* Auctioned By */}
+        <div>
+          <label className="block mb-2">Your Name *</label>
+          <Input
+            value={formData.auctionedBy}
+            onChange={(e) => setFormData({ ...formData, auctionedBy: e.target.value })}
+            className="bg-pink-50 border-0 h-12 rounded-xl"
+            placeholder="Who's listing this friend?"
           />
         </div>
 
         {/* Submit Button */}
         <Button
           onClick={handleSubmit}
-          className="w-full h-14 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 rounded-full"
+          disabled={isSubmitting}
+          className="w-full h-14 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 rounded-full disabled:opacity-50"
         >
-          Create Friend Profile
+          {isSubmitting ? 'Creating Profile...' : 'Create Friend Profile'}
         </Button>
       </div>
     </div>

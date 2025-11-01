@@ -13,7 +13,7 @@ export function BottomNavigation({ currentView, onViewChange }: BottomNavigation
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-2">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4">
       <div className="grid grid-cols-2 gap-4">
         {navItems.map(({ id, label, icon: Icon }) => (
           <button
