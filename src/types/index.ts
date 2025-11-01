@@ -42,4 +42,4 @@ export interface FriendProfile {
   isActive: boolean;
 }
 
-export type ViewType = 'auctions' | 'my-bids' | 'my-friends' | 'profile' | 'create-friend';
+export type ViewType = 'auctions' | 'my-friends';

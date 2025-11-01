@@ -62,7 +62,7 @@ export function AuctionsView({ people, onPersonSelect }: AuctionsViewProps) {
             <AuctionCard
               person={person}
               onSwipe={handleSwipe}
-              onTap={() => onPersonSelect(person)}
+              onTap={() => {}} // Simplified for MVP
             />
           </div>
         ))}

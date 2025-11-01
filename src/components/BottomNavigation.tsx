@@ -7,15 +7,14 @@ interface BottomNavigationProps {
 }
 
 export function BottomNavigation({ currentView, onViewChange }: BottomNavigationProps) {
-  const navItems = [
-    { id: 'auctions' as const, label: 'Auctions', icon: Search },
-    { id: 'my-friends' as const, label: 'My Friends', icon: Users },
-    { id: 'profile' as const, label: 'Profile', icon: User },
+  const navItems: Array<{ id: ViewType; label: string; icon: any }> = [
+    { id: 'auctions', label: 'Auctions', icon: Search },
+    { id: 'my-friends', label: 'My Friends', icon: Users },
   ];
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4">
-      <div className="flex justify-between">
+      <div className="grid grid-cols-2 gap-4">
         {navItems.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
