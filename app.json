@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Friend Auction",
+    "slug": "friend-auction-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#fdf2f8"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "newArchEnabled": false
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#fdf2f8"
+      },
+      "newArchEnabled": false
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "scheme": "friend-auction"
+  }
+}

@@ -1,17 +1,25 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../lib/supabase';
 import { Database } from '../types/database';
 
 type UserInteraction = Database['public']['Tables']['user_interactions']['Row'];
 type UserInteractionInsert = Database['public']['Tables']['user_interactions']['Insert'];
 
+const SESSION_KEY = 'friend_auction_session_id';
+
 // Generate a simple session ID (you can make this more sophisticated)
-function getSessionId(): string {
-  let sessionId = localStorage.getItem('friend_auction_session_id');
-  if (!sessionId) {
-    sessionId = 'session_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
-    localStorage.setItem('friend_auction_session_id', sessionId);
+async function getSessionId(): Promise<string> {
+  try {
+    let sessionId = await AsyncStorage.getItem(SESSION_KEY);
+    if (!sessionId) {
+      sessionId = 'session_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+      await AsyncStorage.setItem(SESSION_KEY, sessionId);
+    }
+    return sessionId;
+  } catch (error) {
+    console.warn('AsyncStorage not available, using temporary session ID');
+    return 'session_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
   }
-  return sessionId;
 }
 
 // Record user interaction (like, pass, view)
@@ -20,7 +28,7 @@ export async function recordInteraction(
   action: 'like' | 'pass' | 'view'
 ): Promise<boolean> {
   try {
-    const sessionId = getSessionId();
+    const sessionId = await getSessionId();
     
     const interactionData: UserInteractionInsert = {
       session_id: sessionId,
@@ -45,7 +53,7 @@ export async function recordInteraction(
 // Get user interactions for current session
 export async function getUserInteractions(): Promise<UserInteraction[]> {
   try {
-    const sessionId = getSessionId();
+    const sessionId = await getSessionId();
     
     const { data, error } = await supabase
       .from('user_interactions')
@@ -66,7 +74,7 @@ export async function hasUserInteracted(
   action?: 'like' | 'pass' | 'view'
 ): Promise<boolean> {
   try {
-    const sessionId = getSessionId();
+    const sessionId = await getSessionId();
     
     let query = supabase
       .from('user_interactions')
@@ -91,7 +99,7 @@ export async function hasUserInteracted(
 // Get profiles that user has liked
 export async function getLikedProfiles(): Promise<number[]> {
   try {
-    const sessionId = getSessionId();
+    const sessionId = await getSessionId();
     
     const { data, error } = await supabase
       .from('user_interactions')
@@ -110,7 +118,7 @@ export async function getLikedProfiles(): Promise<number[]> {
 // Get profiles that user has passed on
 export async function getPassedProfiles(): Promise<number[]> {
   try {
-    const sessionId = getSessionId();
+    const sessionId = await getSessionId();
     
     const { data, error } = await supabase
       .from('user_interactions')

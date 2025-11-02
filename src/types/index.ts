@@ -41,5 +41,3 @@ export interface FriendProfile {
   matches: number;
   isActive: boolean;
 }
-
-export type ViewType = 'auctions' | 'my-friends';
