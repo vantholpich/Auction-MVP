@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { createFriendProfile } from '../../src/services/friendProfileService';
+import { uploadMultipleImages, testStorageSetup } from '../../src/services/storageService';
 
 export default function CreateFriendScreen() {
   const [formData, setFormData] = useState({
@@ -70,6 +71,25 @@ export default function CreateFriendScreen() {
     try {
       setIsSubmitting(true);
       
+      // Upload images to Supabase Storage if any are selected
+      let uploadedImageUrls: string[] = [];
+      if (selectedImages.length > 0) {
+        // Test storage setup first
+        const storageReady = await testStorageSetup();
+        if (!storageReady) {
+          Alert.alert(
+            'Storage Setup Required', 
+            'Please set up the Supabase Storage bucket and policies first. Check the SUPABASE_STORAGE_SETUP.md file for instructions.'
+          );
+          return;
+        }
+        
+        // Upload images
+        console.log('Uploading images:', selectedImages);
+        uploadedImageUrls = await uploadMultipleImages(selectedImages);
+        console.log('Upload completed:', uploadedImageUrls);
+      }
+      
       await createFriendProfile({
         name: formData.name,
         age: parseInt(formData.age),
@@ -79,8 +99,8 @@ export default function CreateFriendScreen() {
         pros: formData.pros,
         cons: formData.cons,
         auctionedBy: formData.auctionedBy,
-        image: selectedImages[0] || undefined, // Main profile image
-        gallery: selectedImages // All selected images
+        image: uploadedImageUrls[0] || undefined, // Main profile image from uploaded URLs
+        gallery: uploadedImageUrls // All uploaded image URLs
       });
 
       Alert.alert('Success', 'Friend profile created successfully!');
@@ -96,12 +116,27 @@ export default function CreateFriendScreen() {
         occupation: '',
         auctionedBy: ''
       });
+      setSelectedImages([]);
       
       // Navigate back to auctions
       router.push('/(tabs)');
     } catch (error) {
       console.error('Error creating profile:', error);
-      Alert.alert('Error', 'Failed to create profile. Please try again.');
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to create profile. Please try again.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('storage')) {
+          errorMessage = 'Failed to upload images. Please check your Supabase Storage setup.';
+        } else if (error.message.includes('bucket')) {
+          errorMessage = 'Storage bucket not found. Please create the "friend-profiles" bucket in Supabase.';
+        } else if (error.message.includes('policy') || error.message.includes('permission')) {
+          errorMessage = 'Storage permission denied. Please set up the storage policies.';
+        }
+      }
+      
+      Alert.alert('Error', errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -271,7 +306,10 @@ export default function CreateFriendScreen() {
             disabled={isSubmitting}
           >
             <Text style={styles.submitButtonText}>
-              {isSubmitting ? 'Creating Profile...' : 'Create Friend Profile'}
+              {isSubmitting ? 
+                (selectedImages.length > 0 ? 'Uploading Images...' : 'Creating Profile...') : 
+                'Create Friend Profile'
+              }
             </Text>
           </TouchableOpacity>
         </View>
