@@ -47,10 +47,10 @@ export default function CreateFriendScreen() {
     });
 
     if (!result.canceled && result.assets[0]) {
-      if (selectedImages.length < 6) {
+      if (selectedImages.length < 3) {
         setSelectedImages([...selectedImages, result.assets[0].uri]);
       } else {
-        Alert.alert('Maximum Images', 'You can only select up to 6 images.');
+        Alert.alert('Maximum Images', 'You can only select up to 3 images.');
       }
     }
   };
@@ -156,7 +156,7 @@ export default function CreateFriendScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Photos</Text>
             <Text style={styles.helperText}>
-              Add up to 6 photos. The first one will be their main profile picture.
+              Add up to 3 photos. The first one will be their main profile picture.
             </Text>
             <View style={styles.photoGrid}>
               {/* Render selected images */}
@@ -172,8 +172,8 @@ export default function CreateFriendScreen() {
                 </View>
               ))}
               
-              {/* Add photo button (show if less than 6 images) */}
-              {selectedImages.length < 6 && (
+              {/* Add photo button (show if less than 3 images) */}
+              {selectedImages.length < 3 && (
                 <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
                   <Ionicons name="add" size={32} color="#ec4899" />
                   <Text style={styles.photoButtonText}>Add Photo</Text>
@@ -181,7 +181,7 @@ export default function CreateFriendScreen() {
               )}
               
               {/* Empty placeholders */}
-              {Array.from({ length: Math.max(0, 6 - selectedImages.length - 1) }).map((_, index) => (
+              {Array.from({ length: Math.max(0, 3 - selectedImages.length - 1) }).map((_, index) => (
                 <View key={`placeholder-${index}`} style={styles.photoPlaceholder}>
                   <Ionicons name="add" size={32} color="#d1d5db" />
                 </View>
