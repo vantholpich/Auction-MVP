@@ -91,11 +91,6 @@ export default function AuctionCard({ person, onSwipe, onTap }: AuctionCardProps
           
           {/* Content */}
           <View style={styles.content}>
-            <View style={styles.bidsContainer}>
-              <Ionicons name="heart" size={20} color="#ec4899" />
-              <Text style={styles.bidsText}>{person.bids} Bids</Text>
-            </View>
-            
             <Text style={styles.name}>
               {person.name}, {person.age}
             </Text>
@@ -154,17 +149,7 @@ const styles = StyleSheet.create({
     right: 0,
     padding: 24,
   },
-  bidsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  bidsText: {
-    color: '#ffffff',
-    fontSize: 14,
-    opacity: 0.9,
-    marginLeft: 8,
-  },
+
   name: {
     color: '#ffffff',
     fontSize: 24,

@@ -7,10 +7,12 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
 import { createFriendProfile } from '../../src/services/friendProfileService';
 
 export default function CreateFriendScreen() {
@@ -24,7 +26,39 @@ export default function CreateFriendScreen() {
     occupation: '',
     auctionedBy: ''
   });
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const pickImage = async () => {
+    // Request permission
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    
+    if (permissionResult.granted === false) {
+      Alert.alert('Permission Required', 'Permission to access camera roll is required!');
+      return;
+    }
+
+    // Launch image picker
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [3, 4],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      if (selectedImages.length < 6) {
+        setSelectedImages([...selectedImages, result.assets[0].uri]);
+      } else {
+        Alert.alert('Maximum Images', 'You can only select up to 6 images.');
+      }
+    }
+  };
+
+  const removeImage = (index: number) => {
+    const newImages = selectedImages.filter((_, i) => i !== index);
+    setSelectedImages(newImages);
+  };
 
   const handleSubmit = async () => {
     // Basic validation
@@ -44,7 +78,9 @@ export default function CreateFriendScreen() {
         interests: formData.interests,
         pros: formData.pros,
         cons: formData.cons,
-        auctionedBy: formData.auctionedBy
+        auctionedBy: formData.auctionedBy,
+        image: selectedImages[0] || undefined, // Main profile image
+        gallery: selectedImages // All selected images
       });
 
       Alert.alert('Success', 'Friend profile created successfully!');
@@ -123,16 +159,33 @@ export default function CreateFriendScreen() {
               Add up to 6 photos. The first one will be their main profile picture.
             </Text>
             <View style={styles.photoGrid}>
-              <TouchableOpacity style={styles.photoButton}>
-                <Ionicons name="add" size={32} color="#ec4899" />
-                <Text style={styles.photoButtonText}>Add Photo</Text>
-              </TouchableOpacity>
-              <View style={styles.photoPlaceholder}>
-                <Ionicons name="add" size={32} color="#d1d5db" />
-              </View>
-              <View style={styles.photoPlaceholder}>
-                <Ionicons name="add" size={32} color="#d1d5db" />
-              </View>
+              {/* Render selected images */}
+              {selectedImages.map((imageUri, index) => (
+                <View key={index} style={styles.photoContainer}>
+                  <Image source={{ uri: imageUri }} style={styles.selectedPhoto} />
+                  <TouchableOpacity 
+                    style={styles.removeButton}
+                    onPress={() => removeImage(index)}
+                  >
+                    <Ionicons name="close-circle" size={24} color="#ef4444" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+              
+              {/* Add photo button (show if less than 6 images) */}
+              {selectedImages.length < 6 && (
+                <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
+                  <Ionicons name="add" size={32} color="#ec4899" />
+                  <Text style={styles.photoButtonText}>Add Photo</Text>
+                </TouchableOpacity>
+              )}
+              
+              {/* Empty placeholders */}
+              {Array.from({ length: Math.max(0, 6 - selectedImages.length - 1) }).map((_, index) => (
+                <View key={`placeholder-${index}`} style={styles.photoPlaceholder}>
+                  <Ionicons name="add" size={32} color="#d1d5db" />
+                </View>
+              ))}
             </View>
           </View>
 
@@ -328,6 +381,23 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  photoContainer: {
+    flex: 1,
+    aspectRatio: 1,
+    position: 'relative',
+  },
+  selectedPhoto: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 16,
+  },
+  removeButton: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
   },
   submitButton: {
     backgroundColor: '#ec4899',
