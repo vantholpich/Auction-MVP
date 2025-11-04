@@ -25,7 +25,9 @@ export default function CreateFriendScreen() {
     pros: '',
     cons: '',
     occupation: '',
-    auctionedBy: ''
+    auctionedBy: '',
+    instagram: '',
+    facebook: ''
   });
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -99,6 +101,8 @@ export default function CreateFriendScreen() {
         pros: formData.pros,
         cons: formData.cons,
         auctionedBy: formData.auctionedBy,
+        instagram: formData.instagram,
+        facebook: formData.facebook,
         image: uploadedImageUrls[0] || undefined, // Main profile image from uploaded URLs
         gallery: uploadedImageUrls // All uploaded image URLs
       });
@@ -114,7 +118,9 @@ export default function CreateFriendScreen() {
         pros: '',
         cons: '',
         occupation: '',
-        auctionedBy: ''
+        auctionedBy: '',
+        instagram: '',
+        facebook: ''
       });
       setSelectedImages([]);
       
@@ -287,6 +293,38 @@ export default function CreateFriendScreen() {
             />
           </View>
 
+          {/* Social Media */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Social Media</Text>
+            <Text style={styles.helperText}>
+              Add their Instagram or Facebook to help people connect
+            </Text>
+            
+            <View style={styles.socialInputContainer}>
+              <Ionicons name="logo-instagram" size={20} color="#E4405F" style={styles.socialIcon} />
+              <TextInput
+                style={[styles.input, styles.socialInput]}
+                value={formData.instagram}
+                onChangeText={(text) => setFormData({ ...formData, instagram: text })}
+                placeholder="Instagram username (without @)"
+                placeholderTextColor="#9ca3af"
+                autoCapitalize="none"
+              />
+            </View>
+            
+            <View style={styles.socialInputContainer}>
+              <Ionicons name="logo-facebook" size={20} color="#1877F2" style={styles.socialIcon} />
+              <TextInput
+                style={[styles.input, styles.socialInput]}
+                value={formData.facebook}
+                onChangeText={(text) => setFormData({ ...formData, facebook: text })}
+                placeholder="Facebook profile name"
+                placeholderTextColor="#9ca3af"
+                autoCapitalize="none"
+              />
+            </View>
+          </View>
+
           {/* Auctioned By */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Your Name *</Text>
@@ -452,5 +490,19 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 18,
     fontWeight: '600',
+  },
+  socialInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  socialIcon: {
+    position: 'absolute',
+    left: 16,
+    zIndex: 1,
+  },
+  socialInput: {
+    paddingLeft: 48,
+    flex: 1,
   },
 });

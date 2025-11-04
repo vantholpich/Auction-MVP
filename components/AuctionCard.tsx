@@ -6,6 +6,8 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  Linking,
+  Alert,
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -30,6 +32,30 @@ interface AuctionCardProps {
 export default function AuctionCard({ person, onSwipe, onTap }: AuctionCardProps) {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
+
+  const openSocialMedia = async (platform: 'instagram' | 'facebook', username: string) => {
+    let appUrl = '';
+    let webUrl = '';
+    
+    if (platform === 'instagram') {
+      appUrl = `instagram://user?username=${username}`;
+      webUrl = `https://instagram.com/${username}`;
+    } else if (platform === 'facebook') {
+      appUrl = `fb://facewebmodal/f?href=https://facebook.com/${username}`;
+      webUrl = `https://facebook.com/${username}`;
+    }
+
+    try {
+      const canOpen = await Linking.canOpenURL(appUrl);
+      if (canOpen) {
+        await Linking.openURL(appUrl);
+      } else {
+        await Linking.openURL(webUrl);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Could not open social media profile');
+    }
+  };
 
   const panGesture = Gesture.Pan()
     .onUpdate((event) => {
@@ -99,6 +125,32 @@ export default function AuctionCard({ person, onSwipe, onTap }: AuctionCardProps
               {person.bio}
             </Text>
             
+            {/* Social Media Links */}
+            {(person.instagram || person.facebook) && (
+              <View style={styles.socialContainer}>
+                {person.instagram && (
+                  <TouchableOpacity 
+                    style={styles.socialItem}
+                    onPress={() => openSocialMedia('instagram', person.instagram!)}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons name="logo-instagram" size={16} color="#E4405F" />
+                    <Text style={styles.socialText}>@{person.instagram}</Text>
+                  </TouchableOpacity>
+                )}
+                {person.facebook && (
+                  <TouchableOpacity 
+                    style={styles.socialItem}
+                    onPress={() => openSocialMedia('facebook', person.facebook!)}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons name="logo-facebook" size={16} color="#1877F2" />
+                    <Text style={styles.socialText}>{person.facebook}</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+            
             <Text style={styles.auctionedBy}>
               Auctioned by {person.auctionedBy}
             </Text>
@@ -139,8 +191,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: '50%',
-    backgroundColor: 'transparent',
-    background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
   },
   content: {
     position: 'absolute',
@@ -167,6 +218,25 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 12,
     opacity: 0.75,
+  },
+  socialContainer: {
+    flexDirection: 'row',
+    gap: 16,
+    marginBottom: 8,
+  },
+  socialItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  socialText: {
+    color: '#ffffff',
+    fontSize: 12,
+    opacity: 0.9,
   },
 });
     

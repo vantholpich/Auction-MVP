@@ -22,6 +22,8 @@ function transformToPersonInterface(profile: FriendProfile, testimonials: Testim
     pros: profile.pros || [],
     cons: profile.cons || [],
     interests: profile.interests || [],
+    instagram: profile.instagram || undefined,
+    facebook: profile.facebook || undefined,
     testimonials: testimonials.map(t => ({
       name: t.name,
       text: t.text,
@@ -102,6 +104,8 @@ export async function createFriendProfile(profileData: {
   pros: string;
   cons: string;
   auctionedBy: string;
+  instagram?: string;
+  facebook?: string;
   image?: string;
   gallery?: string[];
 }): Promise<Person | null> {
@@ -118,6 +122,8 @@ export async function createFriendProfile(profileData: {
       pros: profileData.pros.split(',').map(p => p.trim()).filter(p => p),
       cons: profileData.cons.split(',').map(c => c.trim()).filter(c => c),
       interests: profileData.interests.split(',').map(i => i.trim()).filter(i => i),
+      instagram: profileData.instagram || null,
+      facebook: profileData.facebook || null,
       bids: 0,
       is_active: true
     };

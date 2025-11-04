@@ -12,6 +12,8 @@ export interface Person {
   pros: string[];
   cons: string[];
   interests: string[];
+  instagram?: string;
+  facebook?: string;
   testimonials: {
     name: string;
     text: string;

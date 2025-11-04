@@ -16,6 +16,8 @@ export interface Database {
           pros: string[];
           cons: string[];
           interests: string[];
+          instagram: string | null;
+          facebook: string | null;
           created_at: string;
           updated_at: string;
           is_active: boolean;
@@ -34,6 +36,8 @@ export interface Database {
           pros: string[];
           cons: string[];
           interests: string[];
+          instagram?: string | null;
+          facebook?: string | null;
           created_at?: string;
           updated_at?: string;
           is_active?: boolean;
@@ -52,6 +56,8 @@ export interface Database {
           pros?: string[];
           cons?: string[];
           interests?: string[];
+          instagram?: string | null;
+          facebook?: string | null;
           created_at?: string;
           updated_at?: string;
           is_active?: boolean;
