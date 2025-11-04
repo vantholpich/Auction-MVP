@@ -8,6 +8,7 @@ import {
   Dimensions,
   Linking,
   Alert,
+  Platform,
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -34,24 +35,42 @@ export default function AuctionCard({ person, onSwipe, onTap }: AuctionCardProps
   const translateY = useSharedValue(0);
 
   const openSocialMedia = async (platform: 'instagram' | 'facebook', username: string) => {
-    let appUrl = '';
-    let webUrl = '';
+    let url = '';
     
     if (platform === 'instagram') {
-      appUrl = `instagram://user?username=${username}`;
-      webUrl = `https://instagram.com/${username}`;
+      if (Platform.OS === 'web') {
+        url = `https://instagram.com/${username}`;
+      } else {
+        // Try app first, fallback to web
+        const appUrl = `instagram://user?username=${username}`;
+        const webUrl = `https://instagram.com/${username}`;
+        
+        try {
+          const canOpen = await Linking.canOpenURL(appUrl);
+          url = canOpen ? appUrl : webUrl;
+        } catch {
+          url = webUrl;
+        }
+      }
     } else if (platform === 'facebook') {
-      appUrl = `fb://facewebmodal/f?href=https://facebook.com/${username}`;
-      webUrl = `https://facebook.com/${username}`;
+      if (Platform.OS === 'web') {
+        url = `https://facebook.com/${username}`;
+      } else {
+        // Try app first, fallback to web
+        const appUrl = `fb://profile/${username}`;
+        const webUrl = `https://facebook.com/${username}`;
+        
+        try {
+          const canOpen = await Linking.canOpenURL(appUrl);
+          url = canOpen ? appUrl : webUrl;
+        } catch {
+          url = webUrl;
+        }
+      }
     }
 
     try {
-      const canOpen = await Linking.canOpenURL(appUrl);
-      if (canOpen) {
-        await Linking.openURL(appUrl);
-      } else {
-        await Linking.openURL(webUrl);
-      }
+      await Linking.openURL(url);
     } catch (error) {
       Alert.alert('Error', 'Could not open social media profile');
     }
