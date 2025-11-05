@@ -164,7 +164,7 @@ export default function CreateFriendScreen() {
           <View style={styles.introSection}>
             <Text style={styles.title}>Create Their Profile</Text>
             <Text style={styles.subtitle}>
-              Fill in the details below to create an awesome profile for your friend.
+              Fill in the details below to create a profile for your friend.
             </Text>
           </View>
 
@@ -245,54 +245,6 @@ export default function CreateFriendScreen() {
             />
           </View>
 
-          {/* Interests */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Interests</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.interests}
-              onChangeText={(text) => setFormData({ ...formData, interests: text })}
-              placeholder="e.g., Hiking, Cooking, Video Games..."
-              placeholderTextColor="#9ca3af"
-            />
-          </View>
-
-          {/* Pros */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Pros</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.pros}
-              onChangeText={(text) => setFormData({ ...formData, pros: text })}
-              placeholder="What are their best qualities?"
-              placeholderTextColor="#9ca3af"
-            />
-          </View>
-
-          {/* Cons */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Cons</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.cons}
-              onChangeText={(text) => setFormData({ ...formData, cons: text })}
-              placeholder="Be honest, but kind!"
-              placeholderTextColor="#9ca3af"
-            />
-          </View>
-
-          {/* Occupation */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Occupation *</Text>
-            <TextInput
-              style={styles.input}
-              value={formData.occupation}
-              onChangeText={(text) => setFormData({ ...formData, occupation: text })}
-              placeholder="What do they do for work?"
-              placeholderTextColor="#9ca3af"
-            />
-          </View>
-
           {/* Social Media */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Social Media</Text>
@@ -306,7 +258,7 @@ export default function CreateFriendScreen() {
                 style={[styles.input, styles.socialInput]}
                 value={formData.instagram}
                 onChangeText={(text) => setFormData({ ...formData, instagram: text })}
-                placeholder="Instagram username (without @)"
+                placeholder="Instagram username"
                 placeholderTextColor="#9ca3af"
                 autoCapitalize="none"
               />
@@ -318,7 +270,7 @@ export default function CreateFriendScreen() {
                 style={[styles.input, styles.socialInput]}
                 value={formData.facebook}
                 onChangeText={(text) => setFormData({ ...formData, facebook: text })}
-                placeholder="Facebook profile name"
+                placeholder="Facebook username"
                 placeholderTextColor="#9ca3af"
                 autoCapitalize="none"
               />

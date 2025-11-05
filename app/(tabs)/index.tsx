@@ -110,7 +110,7 @@ export default function AuctionsScreen() {
           <Ionicons name="menu" size={20} color="#374151" />
         </TouchableOpacity>
         
-        <Text style={styles.headerTitle}>Auctions</Text>
+        <Text style={styles.headerTitle}>YouWing</Text>
         
         <TouchableOpacity style={styles.headerButton}>
           <Ionicons name="filter" size={20} color="#374151" />
