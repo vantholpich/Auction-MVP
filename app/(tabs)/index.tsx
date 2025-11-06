@@ -9,11 +9,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Person } from '../../src/types';
 import { getFriendProfiles } from '../../src/services/friendProfileService';
 import { recordInteraction, getPassedProfiles, getLikedProfiles } from '../../src/services/userInteractionService';
 import AuctionCard from '../../components/AuctionCard';
 import SwipeButtons from '../../components/SwipeButtons';
+import OnboardingScreen from '../../components/OnboardingScreen';
 
 const { width, height } = Dimensions.get('window');
 
@@ -22,11 +24,39 @@ export default function AuctionsScreen() {
   const [filteredPeople, setFilteredPeople] = useState<Person[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
-  // Load friend profiles from Supabase
+  // Check if user has seen onboarding and load profiles
   useEffect(() => {
-    loadProfiles();
+    checkOnboardingStatus();
   }, []);
+
+  const checkOnboardingStatus = async () => {
+    try {
+      const hasSeenOnboarding = await AsyncStorage.getItem('hasSeenOnboarding');
+      if (!hasSeenOnboarding) {
+        setShowOnboarding(true);
+        setLoading(false);
+      } else {
+        loadProfiles();
+      }
+    } catch (error) {
+      console.error('Error checking onboarding status:', error);
+      loadProfiles();
+    }
+  };
+
+  const handleOnboardingComplete = async () => {
+    try {
+      await AsyncStorage.setItem('hasSeenOnboarding', 'true');
+      setShowOnboarding(false);
+      loadProfiles();
+    } catch (error) {
+      console.error('Error saving onboarding status:', error);
+      setShowOnboarding(false);
+      loadProfiles();
+    }
+  };
 
   // Filter out people the user has already interacted with
   useEffect(() => {
@@ -64,22 +94,19 @@ export default function AuctionsScreen() {
     }
   };
 
-  const handleSwipe = async (direction: 'left' | 'right') => {
-    const currentPerson = filteredPeople[currentIndex];
-    if (currentPerson) {
-      // Record the interaction
-      const action = direction === 'left' ? 'pass' : 'like';
-      await recordInteraction(currentPerson.id, action);
-    }
-    
-    // Move to next person
+  const handleSwipe = async (direction: 'up') => {
+    // Just move to next person without recording any interactions
     setCurrentIndex((prev) => (prev + 1) % filteredPeople.length);
   };
 
-  const handlePass = () => handleSwipe('left');
-  const handleLike = () => handleSwipe('right');
+  const handleNext = () => handleSwipe('up');
 
   const currentPerson = filteredPeople[currentIndex];
+
+  // Show onboarding if user hasn't seen it
+  if (showOnboarding) {
+    return <OnboardingScreen onComplete={handleOnboardingComplete} />;
+  }
 
   if (loading) {
     return (
@@ -106,8 +133,11 @@ export default function AuctionsScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.headerButton}>
-          <Ionicons name="menu" size={20} color="#374151" />
+        <TouchableOpacity 
+          style={styles.headerButton}
+          onPress={() => setShowOnboarding(true)}
+        >
+          <Ionicons name="help-circle-outline" size={20} color="#374151" />
         </TouchableOpacity>
         
         <Text style={styles.headerTitle}>Wingman</Text>
@@ -143,7 +173,7 @@ export default function AuctionsScreen() {
       </View>
 
       {/* Swipe Buttons */}
-      <SwipeButtons onPass={handlePass} onLike={handleLike} />
+      <SwipeButtons onNext={handleNext} />
     </SafeAreaView>
   );
 }

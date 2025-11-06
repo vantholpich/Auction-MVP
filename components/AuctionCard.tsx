@@ -22,11 +22,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { Person } from '../src/types';
 
 const { width } = Dimensions.get('window');
-const SWIPE_THRESHOLD = width * 0.25;
+const SWIPE_THRESHOLD_Y = 100; // Threshold for upward swipe
 
 interface AuctionCardProps {
   person: Person;
-  onSwipe: (direction: 'left' | 'right') => void;
+  onSwipe: (direction: 'up') => void;
   onTap: () => void;
 }
 
@@ -82,15 +82,12 @@ export default function AuctionCard({ person, onSwipe, onTap }: AuctionCardProps
       translateY.value = event.translationY;
     })
     .onEnd(() => {
-      const shouldSwipeRight = translateX.value > SWIPE_THRESHOLD;
-      const shouldSwipeLeft = translateX.value < -SWIPE_THRESHOLD;
+      const shouldSwipeUp = translateY.value < -SWIPE_THRESHOLD_Y;
 
-      if (shouldSwipeRight) {
-        translateX.value = withSpring(width * 2);
-        runOnJS(onSwipe)('right');
-      } else if (shouldSwipeLeft) {
-        translateX.value = withSpring(-width * 2);
-        runOnJS(onSwipe)('left');
+      if (shouldSwipeUp) {
+        // Swipe up - move to next card
+        translateY.value = withSpring(-1000);
+        runOnJS(onSwipe)('up');
       } else {
         // Snap back to center
         translateX.value = withSpring(0);
@@ -99,23 +96,23 @@ export default function AuctionCard({ person, onSwipe, onTap }: AuctionCardProps
     });
 
   const cardStyle = useAnimatedStyle(() => {
-    const rotate = interpolate(
-      translateX.value,
-      [-200, 0, 200],
-      [-25, 0, 25]
-    );
-
     const opacity = interpolate(
-      Math.abs(translateX.value),
+      Math.abs(translateY.value),
       [0, 200],
       [1, 0]
+    );
+
+    const scale = interpolate(
+      translateY.value,
+      [-200, 0],
+      [0.8, 1]
     );
 
     return {
       transform: [
         { translateX: translateX.value },
         { translateY: translateY.value },
-        { rotate: `${rotate}deg` },
+        { scale: scale },
       ],
       opacity,
     };
