@@ -140,7 +140,7 @@ export default function AuctionsScreen() {
           <Ionicons name="help-circle-outline" size={20} color="#374151" />
         </TouchableOpacity>
         
-        <Text style={styles.headerTitle}>Wingman</Text>
+        <Text style={styles.headerTitle}>ListLook</Text>
         
         <TouchableOpacity style={styles.headerButton}>
           <Ionicons name="filter" size={20} color="#374151" />
